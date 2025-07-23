@@ -1,5 +1,5 @@
-<div class="d-flex flex-column align-items-center align-items-sm-start ">
-    <ul class="nav flex-column pt-2 w-100">
+<div style="width: 16%;" class="d-flex flex-column align-items-start">
+    <ul class="nav flex-column pt-2">
         <li class="nav-item">
             <a class="nav-link {{ request()->is('home')? 'active' : '' }}" href="{{url('home')}}"><i class="ms-auto bi bi-grid"></i> <span class="ms-1 d-inline d-sm-none d-md-none d-xl-inline">{{ __('Dashboard') }}</span></a>
         </li>
