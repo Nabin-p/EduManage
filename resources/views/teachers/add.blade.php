@@ -71,10 +71,10 @@
                                     <option value="Female" {{old('gender') == 'female' ? 'selected' : ''}}>Female</option>
                                 </select>
                             </div>
-                            <div class="col-md-4">
+                            {{-- <div class="col-md-4">
                                 <label for="inputNationality" class="form-label">Nationality<sup><i class="bi bi-asterisk text-primary"></i></sup></label>
                                 <input type="text" class="form-control" id="inputNationality" name="nationality" placeholder="" required value="{{old('nationality')}}">
-                            </div>
+                            </div> --}}
                             <div class="col-12">
                                 <button type="submit" class="btn btn-sm btn-outline-primary"><i class="bi bi-person-plus"></i> Add</button>
                             </div>

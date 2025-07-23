@@ -63,10 +63,10 @@
                                     <option value="Female" {{($teacher->gender == 'Female')?'selected':null}}>Female</option>
                                 </select>
                             </div>
-                            <div class="col-3">
+                            {{-- <div class="col-3">
                                 <label for="inputNationality" class="form-label">Nationality<sup><i class="bi bi-asterisk text-primary"></i></sup></label>
                                 <input type="text" class="form-control" id="inputNationality" name="nationality" placeholder="" required value="{{$teacher->nationality}}">
-                            </div>
+                            </div> --}}
                             <div class="col-12">
                                 <button type="submit" class="btn btn-sm btn-outline-primary"><i class="bi bi-person-check"></i> Update</button>
                             </div>

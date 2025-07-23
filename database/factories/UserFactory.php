@@ -30,14 +30,13 @@ class UserFactory extends Factory
             'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
             'remember_token' => Str::random(10),
             'gender'        => $this->faker->randomElement(['Male', 'Female']),
-            'nationality'   => 'Bangladeshi',
-            'phone'         => 'Ex: 325 43657 7554',
-            'address'       => '568, Dhaka',
+            'phone'         => '123',
+            'address'       => 'Nepal',
             'address2'      => 'Same',
-            'city'          => 'Dhaka',
-            'zip'           => '32545',
+            'city'          => 'Nepal',
+            'zip'           => '123',
             'photo'         => null,
-            'role'          => 'admin',
+            'role'          => 'admin'
         ];
     }
 

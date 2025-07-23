@@ -26,16 +26,12 @@ class User extends Authenticatable
         'email',
         'password',
         'gender',
-        'nationality',
         'phone',
         'address',
         'address2',
         'city',
         'zip',
         'photo',
-        'birthday',
-        'religion',
-        'blood_type',
         'role',
     ];
 

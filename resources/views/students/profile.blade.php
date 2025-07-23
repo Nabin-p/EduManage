@@ -60,15 +60,15 @@
                                             <tr>
                                                 <th scope="row">Email:</th>
                                                 <td>{{$student->email}}</td>
-                                                <th>Birthday:</th>
-                                                <td>{{$student->birthday}}</td>
+                                                {{-- <th>Birthday:</th>
+                                                <td>{{$student->birthday}}</td> --}}
                                             </tr>
-                                            <tr>
+                                            {{-- <tr>
                                                 <th scope="row">Nationality:</th>
                                                 <td>{{$student->nationality}}</td>
                                                 <th>Religion:</th>
                                                 <td>{{$student->religion}}</td>
-                                            </tr>
+                                            </tr> --}}
                                             <tr>
                                                 <th scope="row">Address:</th>
                                                 <td>{{$student->address}}</td>
@@ -82,8 +82,8 @@
                                                 <td>{{$student->zip}}</td>
                                             </tr>
                                             <tr>
-                                                <th scope="row">Blood Type:</th>
-                                                <td>{{$student->blood_type}}</td>
+                                                {{-- <th scope="row">Blood Type:</th>
+                                                <td>{{$student->blood_type}}</td> --}}
                                                 <th>Phone:</th>
                                                 <td>{{$student->phone}}</td>
                                             </tr>

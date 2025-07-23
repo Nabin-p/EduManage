@@ -28,7 +28,6 @@ class TeacherStoreRequest extends FormRequest
             'last_name'     => 'required|string',
             'email'         => 'required|string|email|max:255|unique:users',
             'gender'        => 'required|string',
-            'nationality'   => 'required|string',
             'phone'         => 'required|string',
             'address'       => 'required|string',
             'address2'      => 'string',

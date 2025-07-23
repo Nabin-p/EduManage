@@ -28,16 +28,12 @@ class StudentStoreRequest extends FormRequest
             'last_name'         => 'required|string',
             'email'             => 'required|string|email|max:255|unique:users',
             'gender'            => 'required|string',
-            'nationality'       => 'required|string',
             'phone'             => 'required|string',
             'address'           => 'required|string',
             'address2'          => 'nullable|string',
             'city'              => 'required|string',
             'zip'               => 'required|string',
             'photo'             => 'nullable|string',
-            'birthday'          => 'required|date',
-            'religion'          => 'required|string',
-            'blood_type'        => 'required|string',
             'password'          => 'required|string|min:8',
 
             // Parents' information

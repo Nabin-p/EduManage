@@ -36,10 +36,10 @@
                                     <label for="inputEmail4" class="form-label">Email<sup><i class="bi bi-asterisk text-primary"></i></sup></label>
                                     <input type="email" class="form-control" id="inputEmail4" name="email" required value="{{$student->email}}">
                                 </div>
-                                <div class="col-3">
+                                {{-- <div class="col-3">
                                     <label for="inputBirthday" class="form-label">Birthday<sup><i class="bi bi-asterisk text-primary"></i></sup></label>
                                     <input type="date" class="form-control" id="inputBirthday" name="birthday" placeholder="" required value="{{$student->birthday}}">
-                                </div>
+                                </div> --}}
                                 <div class="col-3">
                                     <label for="inputAddress" class="form-label">Address<sup><i class="bi bi-asterisk text-primary"></i></sup></label>
                                     <input type="text" class="form-control" id="inputAddress" name="address" placeholder="" required value="{{$student->address}}">
@@ -63,11 +63,11 @@
                                         <option value="Female" {{($student->gender == 'Female')?'selected':null}}>Female</option>
                                     </select>
                                 </div>
-                                <div class="col-2">
+                                {{-- <div class="col-2">
                                     <label for="inputNationality" class="form-label">Nationality<sup><i class="bi bi-asterisk text-primary"></i></sup></label>
                                     <input type="text" class="form-control" id="inputNationality" name="nationality" placeholder="" required value="{{$student->nationality}}">
-                                </div>
-                                <div class="col-2">
+                                </div> --}}
+                                {{-- <div class="col-2">
                                     <label for="inputBloodType" class="form-label">BloodType<sup><i class="bi bi-asterisk text-primary"></i></sup></label>
                                     <select id="inputBloodType" class="form-select" name="blood_type" required>
                                         <option value="A+" {{($student->blood_type == 'A+')?'selected':null}}>A+</option>
@@ -91,7 +91,7 @@
                                         <option {{($student->religion == 'Judaism')?'selected':null}}>Judaism</option>
                                         <option {{($student->religion == 'Other')?'selected':null}}>Other</option>
                                     </select>
-                                </div>
+                                </div> --}}
                                 <div class="col-3">
                                     <label for="inputPhone" class="form-label">Phone<sup><i class="bi bi-asterisk text-primary"></i></sup></label>
                                     <input type="text" class="form-control" id="inputPhone" name="phone" placeholder="" required value="{{$student->phone}}">

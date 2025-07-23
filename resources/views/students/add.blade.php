@@ -48,10 +48,10 @@
                                     <div id="previewPhoto"></div>
                                     <input type="hidden" id="photoHiddenInput" name="photo" value="">
                                 </div>
-                                <div class="col-md-3">
+                                {{-- <div class="col-md-3">
                                     <label for="inputBirthday" class="form-label">Birthday<sup><i class="bi bi-asterisk text-primary"></i></sup></label>
                                     <input type="date" class="form-control" id="inputBirthday" name="birthday" placeholder="" required value="{{old('birthday')}}">
-                                </div>
+                                </div> --}}
                                 <div class="col-3-md">
                                     <label for="inputAddress" class="form-label">Address<sup><i class="bi bi-asterisk text-primary"></i></sup></label>
                                     <input type="text" class="form-control" id="inputAddress" name="address" placeholder="" required value="{{old('address')}}">
@@ -75,11 +75,11 @@
                                         <option value="Female" {{old('gender') == 'female' ? 'selected' : ''}}>Female</option>
                                     </select>
                                 </div>
-                                <div class="col-md-3">
+                                {{-- <div class="col-md-3">
                                     <label for="inputNationality" class="form-label">Nationality<sup><i class="bi bi-asterisk text-primary"></i></sup></label>
                                     <input type="text" class="form-control" id="inputNationality" name="nationality" placeholder="" required value="{{old('nationality')}}">
-                                </div>
-                                <div class="col-md-4">
+                                </div> --}}
+                                {{-- <div class="col-md-4">
                                     <label for="inputBloodType" class="form-label">BloodType<sup><i class="bi bi-asterisk text-primary"></i></sup></label>
                                     <select id="inputBloodType" class="form-select" name="blood_type" required>
                                         <option {{old('blood_type') == 'A+' ? 'selected' : ''}}>A+</option>
@@ -92,8 +92,8 @@
                                         <option {{old('blood_type') == 'AB-' ? 'selected' : ''}}>AB-</option>
                                         <option {{old('blood_type') == 'other' ? 'selected' : ''}}>Other</option>
                                     </select>
-                                </div>
-                                <div class="col-md-4">
+                                </div> --}}
+                                {{-- <div class="col-md-4">
                                     <label for="inputReligion" class="form-label">Religion<sup><i class="bi bi-asterisk text-primary"></i></sup></label>
                                     <select id="inputReligion" class="form-select" name="religion" required>
                                         <option {{old('religion') == 'Islam' ? 'selected' : ''}}>Hinduism</option>
@@ -103,7 +103,7 @@
                                         <option {{old('religion') == 'Judaism' ? 'selected' : ''}}>Judaism</option>
                                         <option {{old('religion') == 'Others' ? 'selected' : ''}}>Other</option>
                                     </select>
-                                </div>
+                                </div> --}}
                                 <div class="col-md-4">
                                     <label for="inputPhone" class="form-label">Phone<sup><i class="bi bi-asterisk text-primary"></i></sup></label>
                                     <input type="text" class="form-control" id="inputPhone" name="phone" placeholder="" required value="{{old('phone')}}">
