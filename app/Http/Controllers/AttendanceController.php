@@ -14,9 +14,12 @@ use App\Interfaces\AcademicSettingInterface;
 use App\Http\Requests\AttendanceStoreRequest;
 use App\Interfaces\SectionInterface;
 use App\Repositories\AttendanceRepository;
+// use App\Models\SchoolSession;
 use App\Traits\SchoolSession;
+
 use App\Models\AcademicSetting; // Import the model for creating a default
 use Illuminate\Support\Facades\Log; // Import the Log facade for better error logging
+use Illuminate\Support\Facades\Validator; // Import the Validator facade
 
 /*
 |--------------------------------------------------------------------------
@@ -137,20 +140,20 @@ class AttendanceController extends Controller
     // }
 
     public function store(AttendanceStoreRequest $request)
-{
-    try {
-        // The AttendanceStoreRequest and AttendanceRepository should handle the
-        // logic of looping through the `status` array and saving each record.
-        // This part of your code was likely already correct.
-        $attendanceRepository = new AttendanceRepository();
-        $attendanceRepository->saveAttendance($request->validated());
+    {
+        try {
+            // The AttendanceStoreRequest and AttendanceRepository should handle the
+            // logic of looping through the `status` array and saving each record.
+            // This part of your code was likely already correct.
+            $attendanceRepository = new AttendanceRepository();
+            $attendanceRepository->saveAttendance($request->validated());
 
-        return back()->with('status', 'Attendance has been saved successfully!');
-    } catch (\Exception $e) {
-        Log::error('Attendance Store Error: ' . $e->getMessage());
-        return back()->withError('Failed to save attendance. Please try again.');
+            return back()->with('status', 'Attendance has been saved successfully!');
+        } catch (\Exception $e) {
+            Log::error('Attendance Store Error: ' . $e->getMessage());
+            return back()->withError('Failed to save attendance. Please try again.');
+        }
     }
-}
 
     public function show(Request $request)
     {
@@ -252,5 +255,67 @@ class AttendanceController extends Controller
             Log::error('Face Attendance Submit Error: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'An error occurred while saving attendance.'], 500);
         }
+    }
+
+    public function submitAttendance(Request $request)
+    {
+        // 1. VALIDATE THE INCOMING DATA (This part is correct)
+        $validator = Validator::make($request->all(), [
+            'class_id' => 'required|integer|exists:school_classes,id',
+            'section_id' => 'required|integer|exists:sections,id',
+            'course_id' => 'required|integer|exists:courses,id',
+            'status' => 'required|array',
+            'status.*' => 'in:0,1',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => 'error', 'message' => 'Invalid data provided.', 'details' => $validator->errors()], 422);
+        }
+        $validatedData = $validator->validated();
+
+        // 2. GET THE CURRENT ACADEMIC SESSION ID USING THE TRAIT'S METHOD
+        // This is the main fix. We now use the same method as the rest of the controller.
+        $sessionId = $this->getSchoolCurrentSession();
+        if (!$sessionId) {
+            return response()->json(['status' => 'error', 'message' => 'No active school session found.'], 400);
+        }
+
+        $attendanceDate = Carbon::today();
+        $savedCount = 0;
+
+        // 3. USE A DATABASE TRANSACTION FOR SAFETY
+        DB::beginTransaction();
+        try {
+            foreach ($validatedData['status'] as $studentId => $statusValue) {
+                $status = ($statusValue == 1) ? 'present' : 'absent';
+
+                Attendance::updateOrCreate(
+                    [
+                        'student_id' => $studentId,
+                        'attendance_date' => $attendanceDate,
+                        'class_id' => $validatedData['class_id'],
+                        'section_id' => $validatedData['section_id'],
+                        'course_id' => $validatedData['course_id'],
+                        'session_id' => $sessionId, // <-- Now this variable is correctly populated
+                    ],
+                    [
+                        'status' => $status,
+                        'marked_by' => 'manual_review'
+                    ]
+                );
+                $savedCount++;
+            }
+            DB::commit(); // Everything went well, save the changes.
+        } catch (\Exception $e) {
+            DB::rollBack(); // Something failed, undo all changes.
+            Log::error('Attendance Submit Error: ' . $e->getMessage()); // Log the error
+            return response()->json(['status' => 'error', 'message' => 'Failed to save attendance records.'], 500);
+        }
+
+        // 4. RETURN A SUCCESS RESPONSE
+        return response()->json([
+            'status' => 'success',
+            'message' => "Successfully submitted attendance for {$savedCount} students."
+        ]);
     }
 }

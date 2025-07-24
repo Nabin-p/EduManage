@@ -33,7 +33,7 @@
                                     @foreach ($attendances as $attendance)
                                         <tr>
                                             <td>
-                                                @if ($attendance->status == "on")
+                                                @if ($attendance->status == "on" || $attendance->status == "present")
                                                     <span class="badge bg-success">PRESENT</span>
                                                 @else
                                                     <span class="badge bg-danger">ABSENT</span>
@@ -58,7 +58,7 @@
 $events = array();
 if(count($attendances) > 0){
     foreach ($attendances as $attendance){
-        if($attendance->status == "on"){
+        if($attendance->status == "on" || $attendance->status == "present"){
             $events[] = ['title'=> "Present", 'start' => $attendance->created_at, 'color'=>'green'];
         } else {
             $events[] = ['title'=> "Absent", 'start' => $attendance->created_at, 'color'=>'red'];

@@ -19,13 +19,17 @@ class Attendance extends Model
      * @var array
      */
     protected $fillable = [
-        'student_id',
-        'class_id',
-        'section_id',
-        'session_id',
-        'course_id',
-        'status',
-    ];
+    'student_id',
+    'class_id',
+    'section_id',
+    'session_id',
+    'course_id',
+    'status',
+    'attendance_date', 
+    'marked_by',       
+];
+
+    
 
     /**
      * Get the student for attendances.

@@ -166,6 +166,52 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+
+
+    const submitBtn = document.getElementById('submit-attendance');
+const attendanceForm = document.getElementById('attendance-form');
+const submitUrl = "{{ route('attendance.submit') }}"; // We will create this route
+
+// 2. Add a click event listener to the button
+submitBtn.addEventListener('click', function(event) {
+    event.preventDefault(); // Prevent default button behavior
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Saving...';
+
+    // 3. Get all the data from the form
+    const formData = new FormData(attendanceForm);
+
+    // 4. Send the data to the Laravel backend
+    fetch(submitUrl, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            // FormData sends its own headers, but we need the CSRF token
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // 5. Handle the response from the server
+        if (data.status === 'success') {
+            alert('Attendance submitted successfully!');
+            // Optional: Redirect the user after success
+            window.location.href = "{{ route('home') }}"; // Redirect to dashboard
+        } else {
+            alert('Error submitting attendance: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Submission Error:', error);
+        alert('A network or server error occurred during submission.');
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Submit Attendance';
+    });
+});
     
     // Start the WebSocket connection
     connectWebSocket();

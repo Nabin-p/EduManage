@@ -6,85 +6,100 @@ use Carbon\Carbon;
 use App\Models\Attendance;
 use App\Interfaces\AttendanceInterface;
 
-class AttendanceRepository implements AttendanceInterface {
-    public function saveAttendance($request) {
+class AttendanceRepository implements AttendanceInterface
+{
+    public function saveAttendance($request)
+    {
         try {
             $input = $this->prepareInput($request);
             Attendance::insert($input);
         } catch (\Exception $e) {
-            throw new \Exception('Failed to save attendance. '.$e->getMessage());
+            throw new \Exception('Failed to save attendance. ' . $e->getMessage());
         }
     }
 
-    public function prepareInput($request) {
+    public function prepareInput($request)
+    {
         $input = [];
-        $now = Carbon::now()->toDateTimeString();
-        for($i=0; $i < sizeof($request['student_ids']); $i++) {
+        $now = Carbon::now(); // Get the Carbon instance
+
+        for ($i = 0; $i < sizeof($request['student_ids']); $i++) {
             $student_id = $request['student_ids'][$i];
+
+            // This is the main fix: Convert "on" to "present" and anything else to "absent"
+            $status = (isset($request['status'][$student_id]) && $request['status'][$student_id] === 'on')
+                ? 'present'
+                : 'absent';
+
             $input[] = array(
-                'status'        => (isset($request['status'][$student_id]))?$request['status'][$student_id]:'off',
-                'class_id'      => $request['class_id'],
-                'student_id'    => $student_id,
-                'section_id'    => $request['section_id'],
-                'course_id'     => $request['course_id'],
-                'session_id'    => $request['session_id'],
-                'created_at'    => $now,
-                'updated_at'    => $now,
+                'status'            => $status, // Use the standardized status
+                'attendance_date'   => $now->toDateString(), // Add the missing attendance_date
+                'marked_by'         => 'manual', // A default marker
+                'class_id'          => $request['class_id'],
+                'student_id'        => $student_id,
+                'section_id'        => $request['section_id'],
+                'course_id'         => $request['course_id'],
+                'session_id'        => $request['session_id'],
+                'created_at'        => $now,
+                'updated_at'        => $now,
             );
         }
         return $input;
     }
 
-    public function getSectionAttendance($class_id, $section_id, $session_id) {
+    public function getSectionAttendance($class_id, $section_id, $session_id)
+    {
         try {
             return Attendance::with('student')
-                            ->where('class_id', $class_id)
-                            ->where('section_id', $section_id)
-                            ->where('session_id', $session_id)
-                            ->whereDate('created_at', '=', Carbon::today())
-                            ->get();
+                ->where('class_id', $class_id)
+                ->where('section_id', $section_id)
+                ->where('session_id', $session_id)
+                ->whereDate('created_at', '=', Carbon::today())
+                ->get();
         } catch (\Exception $e) {
-            throw new \Exception('Failed to get attendances. '.$e->getMessage());
+            throw new \Exception('Failed to get attendances. ' . $e->getMessage());
         }
     }
 
-    public function getCourseAttendance($class_id, $course_id, $session_id) {
+    public function getCourseAttendance($class_id, $course_id, $session_id)
+    {
         try {
             return Attendance::with('student')
-                            ->where('class_id', $class_id)
-                            ->where('course_id', $course_id)
-                            ->where('session_id', $session_id)
-                            ->whereDate('created_at', '=', Carbon::today())
-                            ->get();
+                ->where('class_id', $class_id)
+                ->where('course_id', $course_id)
+                ->where('session_id', $session_id)
+                ->whereDate('created_at', '=', Carbon::today())
+                ->get();
         } catch (\Exception $e) {
-            throw new \Exception('Failed to get attendances. '.$e->getMessage());
+            throw new \Exception('Failed to get attendances. ' . $e->getMessage());
         }
     }
 
-    public function getStudentAttendance($session_id, $student_id) {
+    public function getStudentAttendance($session_id, $student_id)
+    {
         try {
-            return Attendance::with(['section','course'])
-                            ->where('student_id', $student_id)
-                            ->where('session_id', $session_id)
-                            ->get();
+            return Attendance::with(['section', 'course'])
+                ->where('student_id', $student_id)
+                ->where('session_id', $session_id)
+                ->get();
         } catch (\Exception $e) {
-            throw new \Exception('Failed to get attendances. '.$e->getMessage());
+            throw new \Exception('Failed to get attendances. ' . $e->getMessage());
         }
     }
 
     public function saveAttendanceForDate($attendanceData, $date)
-{
-    return Attendance::updateOrCreate(
-        [
-            'student_id' => $attendanceData['student_id'],
-            'class_id' => $attendanceData['class_id'],
-            'section_id' => $attendanceData['section_id'],
-            'course_id' => $attendanceData['course_id'],
-            'date' => $date,
-        ],
-        [
-            'status' => $attendanceData['status'],
-        ]
-    );
-}
+    {
+        return Attendance::updateOrCreate(
+            [
+                'student_id' => $attendanceData['student_id'],
+                'class_id' => $attendanceData['class_id'],
+                'section_id' => $attendanceData['section_id'],
+                'course_id' => $attendanceData['course_id'],
+                'date' => $date,
+            ],
+            [
+                'status' => $attendanceData['status'],
+            ]
+        );
+    }
 }

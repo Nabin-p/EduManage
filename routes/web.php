@@ -32,6 +32,7 @@ use App\Http\Controllers\Librarian\BookIssueController;
 use App\Http\Controllers\Student\LibraryController;
 
 
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -86,6 +87,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/home', [HomeController::class, 'index'])->name('home');
 
     // Attendance
+    Route::post('/attendance/submit', [AttendanceController::class, 'submitAttendance'])->name('attendance.submit');
     Route::post('/attendance/store', [AttendanceController::class, 'store'])->name('attendance.store');
     Route::get('/attendances/view', [AttendanceController::class, 'show'])->name('attendance.list.show');
     Route::get('/attendances/take', [AttendanceController::class, 'create'])->name('attendance.create.show');
@@ -232,3 +234,10 @@ Route::middleware(['auth', 'is_student'])->prefix('student')->name('student.')->
     // ADD THIS NEW ROUTE FOR THE STUDENT'S BOOK LIST
     Route::get('/my-books', [LibraryController::class, 'myBooks'])->name('library.my_books');
 });
+
+Route::get('/attendance/capture/class/{class_id}/section/{section_id}/course/{course_id}', [AttendanceController::class, 'showCapturePage'])
+    ->name('attendance.capture');
+
+// The endpoint that receives the captured image and all IDs
+Route::post('/attendance/mark-by-face', [AttendanceController::class, 'markByFace'])
+    ->name('attendance.mark');
