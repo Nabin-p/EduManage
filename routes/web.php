@@ -86,10 +86,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/home', [HomeController::class, 'index'])->name('home');
 
     // Attendance
-    Route::get('/attendances', [AttendanceController::class, 'index'])->name('attendance.index');
+    Route::post('/attendance/store', [AttendanceController::class, 'store'])->name('attendance.store');
     Route::get('/attendances/view', [AttendanceController::class, 'show'])->name('attendance.list.show');
     Route::get('/attendances/take', [AttendanceController::class, 'create'])->name('attendance.create.show');
     Route::post('/attendances', [AttendanceController::class, 'store'])->name('attendances.store');
+    Route::post('/attendance/face/submit', [AttendanceController::class, 'submitFaceAttendance'])->name('attendance.face.submit');
 
     // Classes and sections
     Route::get('/classes', [SchoolClassController::class, 'index']);
@@ -189,8 +190,7 @@ Route::post('/pay-fee', [KhaltiPaymentController::class, 'initiatePayment'])->na
 Route::post('/verify-payment', [KhaltiPaymentController::class, 'verifyPayment'])->name('khalti.verify');
 
 // This is the route to SHOW the attendance page (You likely have this already)
-Route::get('/attendance/take/{class_id}', [AttendanceController::class, 'take'])->name('attendance.take');
-
+Route::get('/attendance/take/{class_id}', [AttendanceController::class, 'create'])->name('attendance.take');
 // ** THIS IS THE MISSING ROUTE TO ADD **
 // This route will handle the form submission when you click "Submit Attendance"
 Route::post('/attendance/store', [AttendanceController::class, 'store'])->name('attendance.store');
@@ -226,10 +226,9 @@ Route::middleware(['auth', 'is_librarian'])->prefix('librarian')->name('libraria
 });
 
 Route::middleware(['auth', 'is_student'])->prefix('student')->name('student.')->group(function () {
-    
+
     // ... any other student routes you have ...
 
     // ADD THIS NEW ROUTE FOR THE STUDENT'S BOOK LIST
     Route::get('/my-books', [LibraryController::class, 'myBooks'])->name('library.my_books');
-
 });

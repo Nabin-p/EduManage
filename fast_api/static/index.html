@@ -1,30 +1,30 @@
-<!-- In FAST_API/static/index.html -->
+<!-- static/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Face Recognition App</title>
     <style>
-        /* Your existing CSS styles... */
         body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background-color: #f0f2f5; margin: 0; }
         h1 { color: #333; }
-        .container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; margin-top: 20px; }
-        .card { background-color: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 20px; text-align: center; width: 640px; }
+        .container { display: flex; gap: 20px; margin-top: 20px; }
+        .card { background-color: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 20px; text-align: center; }
+        #video-container { position: relative; width: 640px; }
         video { width: 100%; border-radius: 8px; }
         canvas { display: none; }
         #results { margin-top: 20px; font-size: 1.2em; color: #1c1e21; background-color: #e7f3ff; padding: 10px; border-radius: 8px; min-height: 50px; }
         button { background-color: #1877f2; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-size: 16px; cursor: pointer; transition: background-color 0.3s; }
         button:hover { background-color: #166fe5; }
+        .live-stream-link { margin-top: 20px; }
     </style>
 </head>
 <body>
-    <h1>Face Recognition App</h1>
+    <h1>Face Recognition</h1>
 
     <div class="container">
-        <!-- Your existing card for UI capture -->
         <div class="card">
-            <h2>Capture from Your Webcam ("Scan on Demand")</h2>
-            <div>
+            <h2>Capture from Your Webcam</h2>
+            <div id="video-container">
                 <video id="video" width="640" height="480" autoplay></video>
                 <canvas id="canvas" width="640" height="480"></canvas>
             </div>
@@ -32,19 +32,67 @@
             <h3>Recognition Results:</h3>
             <div id="results">Waiting for capture...</div>
         </div>
-        
-        <!-- === NEW CARD FOR THE LIVE STREAM LINK === -->
-        <div class="card">
-            <h2>View Server's Live Stream (Real-Time)</h2>
-            <p>This opens a new page with a continuous video stream processed by the server's camera.</p>
-            <a href="/video_feed" target="_blank">
-                <button>Open Live Stream</button>
-            </a>
-        </div>
     </div>
     
+    <div class="live-stream-link card">
+        <h2>Or, View Server's Live Stream</h2>
+        <p>This stream comes from the camera connected to the server.</p>
+        <a href="/video_feed" target="_blank"><button>Open Live Stream</button></a>
+    </div>
+
     <script>
-        // Your existing JavaScript for the capture button...
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const captureBtn = document.getElementById('capture-btn');
+        const resultsDiv = document.getElementById('results');
+
+        // Access user's webcam
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                video.srcObject = stream;
+            })
+            .catch(err => {
+                console.error("Error accessing webcam: ", err);
+                resultsDiv.textContent = "Error: Could not access webcam.";
+            });
+
+        // Handle capture button click
+        captureBtn.addEventListener('click', async () => {
+            resultsDiv.textContent = 'Processing...';
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, 640, 480);
+            
+            // Convert canvas image to blob
+            canvas.toBlob(async (blob) => {
+                const formData = new FormData();
+                formData.append('file', blob, 'capture.jpg');
+
+                // Send to backend API
+                try {
+                    const response = await fetch('/capture-and-recognize', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Server error: ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+                    
+                    // Display results
+                    if (data.recognized_faces && data.recognized_faces.length > 0) {
+                        const names = data.recognized_faces.map(face => `${face.name} (Dist: ${face.distance})`).join(', ');
+                        resultsDiv.textContent = `Detected: ${names}`;
+                    } else {
+                        resultsDiv.textContent = 'No faces detected or recognized.';
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    resultsDiv.textContent = 'Failed to get recognition results.';
+                }
+            }, 'image/jpeg');
+        });
     </script>
 </body>
 </html>

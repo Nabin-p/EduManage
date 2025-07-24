@@ -71,4 +71,20 @@ class AttendanceRepository implements AttendanceInterface {
             throw new \Exception('Failed to get attendances. '.$e->getMessage());
         }
     }
+
+    public function saveAttendanceForDate($attendanceData, $date)
+{
+    return Attendance::updateOrCreate(
+        [
+            'student_id' => $attendanceData['student_id'],
+            'class_id' => $attendanceData['class_id'],
+            'section_id' => $attendanceData['section_id'],
+            'course_id' => $attendanceData['course_id'],
+            'date' => $date,
+        ],
+        [
+            'status' => $attendanceData['status'],
+        ]
+    );
+}
 }
