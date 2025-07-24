@@ -9,6 +9,8 @@ use App\Repositories\NoticeRepository;
 use App\Interfaces\SchoolClassInterface;
 use App\Interfaces\SchoolSessionInterface;
 use App\Repositories\PromotionRepository;
+use Illuminate\Support\Facades\Auth; 
+use App\Models\BookIssue; 
 
 class HomeController extends Controller
 {
@@ -21,10 +23,12 @@ class HomeController extends Controller
      *
      * @return void
      */
+
+    
     public function __construct(
         UserInterface $userRepository, SchoolSessionInterface $schoolSessionRepository, SchoolClassInterface $schoolClassRepository)
     {
-        // $this->middleware('auth');
+        $this->middleware('auth');
         $this->userRepository = $userRepository;
         $this->schoolSessionRepository = $schoolSessionRepository;
         $this->schoolClassRepository = $schoolClassRepository;
@@ -59,6 +63,21 @@ class HomeController extends Controller
             'notices'       => $notices,
             'maleStudentsBySession' => $maleStudentsBySession,
         ];
+
+        $user = Auth::user();
+        $viewData = []; // An array to hold all data for the view
+
+        // Check if the logged-in user is a student
+        if ($user->role == 'student') {
+            // If they are a student, get their issued books
+            $viewData['myIssuedBooks'] = BookIssue::with('book')
+                                              ->where('student_id', $user->id)
+                                              ->where('status', 'issued')
+                                              ->latest('issue_date')
+                                              ->limit(5)
+                                              ->get();
+        }
+
 
         return view('home', $data);
     }

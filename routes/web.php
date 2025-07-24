@@ -25,6 +25,12 @@ use App\Http\Controllers\AcademicSettingController;
 use App\Http\Controllers\AssignedTeacherController;
 use App\Http\Controllers\Auth\UpdatePasswordController;
 use App\Http\Controllers\KhaltiPaymentController;
+use App\Http\Controllers\Librarian;
+use App\Http\Controllers\Librarian\DashboardController;
+use App\Http\Controllers\Librarian\BookController;
+use App\Http\Controllers\Librarian\BookIssueController;
+use App\Http\Controllers\Student\LibraryController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -192,3 +198,38 @@ Route::post('/attendance/store', [AttendanceController::class, 'store'])->name('
 Route::post('/academics/settings/upload-student-photo/{student_id}', [AcademicSettingController::class, 'uploadStudentPhoto'])->name('academic-settings.upload-student-photo');
 
 Route::post('/users/students/{student_id}/upload-photo', [UserController::class, 'uploadStudentPhoto'])->name('users.students.upload-photo');
+
+// LIBRARIAN ROUTES
+Route::middleware(['auth', 'is_librarian'])->prefix('librarian')->name('librarian.')->group(function () {
+
+    // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Book Management (CRUD)
+    Route::resource('books', BookController::class);
+
+    // Book Issuing and Returning
+    Route::get('/issues', [BookIssueController::class, 'index'])->name('issues.index');
+    Route::get('/issue/new', [BookIssueController::class, 'create'])->name('issue.create');
+    Route::post('/issue/new', [BookIssueController::class, 'store'])->name('issue.store');
+    Route::post('/issue/{bookIssue}/return', [BookIssueController::class, 'returnBook'])->name('issue.return');
+
+    Route::middleware(['auth', 'is_librarian'])->prefix('librarian')->name('librarian.')->group(function () {
+        // ... your existing dashboard, books, and issue routes ...
+
+        // ADD THESE TWO NEW ROUTES FOR AJAX SEARCH
+        Route::get('/api/books/search', [BookIssueController::class, 'searchBooks'])->name('api.books.search');
+        Route::get('/api/students/search', [BookIssueController::class, 'searchStudents'])->name('api.students.search');
+    });
+    Route::get('/api/books/search', [BookIssueController::class, 'searchBooks'])->name('api.books.search');
+    Route::get('/api/students/search', [BookIssueController::class, 'searchStudents'])->name('api.students.search');
+});
+
+Route::middleware(['auth', 'is_student'])->prefix('student')->name('student.')->group(function () {
+    
+    // ... any other student routes you have ...
+
+    // ADD THIS NEW ROUTE FOR THE STUDENT'S BOOK LIST
+    Route::get('/my-books', [LibraryController::class, 'myBooks'])->name('library.my_books');
+
+});
