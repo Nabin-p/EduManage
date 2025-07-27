@@ -11,6 +11,7 @@ use App\Interfaces\SchoolSessionInterface;
 use App\Repositories\PromotionRepository;
 use Illuminate\Support\Facades\Auth; 
 use App\Models\BookIssue; 
+use App\Services\PersonalizedBookRecommendationService;
 
 class HomeController extends Controller
 {
@@ -76,9 +77,20 @@ class HomeController extends Controller
                                               ->latest('issue_date')
                                               ->limit(5)
                                               ->get();
+
+            // Get personalized book recommendation
+            $recommendationService = app(PersonalizedBookRecommendationService::class);
+            $recommendedBook = $recommendationService->getDailyRecommendation($user->id);
+            
+            if ($recommendedBook) {
+                $viewData['recommendedBook'] = $recommendedBook;
+                $viewData['recommendationStats'] = $recommendationService->getRecommendationStats($user->id);
+            } else {
+                $viewData['noMoreBooks'] = true;
+                $viewData['recommendationStats'] = $recommendationService->getRecommendationStats($user->id);
+            }
         }
 
-
-        return view('home', $data);
+        return view('home', array_merge($data, $viewData));
     }
 }

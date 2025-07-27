@@ -22,6 +22,7 @@ class Book extends Model
         'description',
         'total_copies',
         'available_copies',
+        'category_id',
     ];
 
     /**
@@ -30,5 +31,21 @@ class Book extends Model
     public function issues()
     {
         return $this->hasMany(BookIssue::class);
+    }
+
+    /**
+     * Get the category of the book.
+     */
+    public function category()
+    {
+        return $this->belongsTo(BookCategory::class, 'category_id');
+    }
+
+    /**
+     * Get recommendation tracking for this book.
+     */
+    public function recommendationTracking()
+    {
+        return $this->hasMany(StudentRecommendationTracking::class, 'book_id');
     }
 }

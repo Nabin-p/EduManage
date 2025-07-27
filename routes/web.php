@@ -227,6 +227,23 @@ Route::middleware(['auth', 'is_librarian'])->prefix('librarian')->name('libraria
     Route::get('/api/students/search', [BookIssueController::class, 'searchStudents'])->name('api.students.search');
 });
 
+// Student Book Recommendation Routes
+Route::middleware(['auth', 'is_student'])->prefix('student')->name('student.')->group(function () {
+    Route::get('/book-recommendation', [App\Http\Controllers\Student\BookRecommendationController::class, 'getDailyRecommendation'])->name('book-recommendation.daily');
+    Route::post('/book-recommendation/refresh', [App\Http\Controllers\Student\BookRecommendationController::class, 'getNewRecommendation'])->name('book-recommendation.refresh');
+    Route::get('/book-recommendation/stats', [App\Http\Controllers\Student\BookRecommendationController::class, 'getStats'])->name('book-recommendation.stats');
+    
+    // Test route
+    Route::get('/test', function() {
+        return response()->json(['success' => true, 'message' => 'Student middleware working']);
+    })->name('test');
+});
+
+// Admin route for resetting recommendation history
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::post('/book-recommendation/reset', [App\Http\Controllers\Student\BookRecommendationController::class, 'resetHistory'])->name('book-recommendation.reset');
+});
+
 Route::middleware(['auth', 'is_student'])->prefix('student')->name('student.')->group(function () {
 
     // ... any other student routes you have ...

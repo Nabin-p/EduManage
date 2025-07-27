@@ -213,8 +213,206 @@
                         </div>
                     </div>
                 @endif
+
+                {{-- Personalized Book Recommendation Section --}}
+                @if(Auth::user()->role == 'student')
+                    <div class="card shadow mt-4">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                <i class="bi bi-book"></i> Today's Book Recommendation
+                            </h6>
+                            <button id="refreshRecommendation" class="btn btn-sm btn-outline-secondary" onclick="refreshRecommendation()">
+                                <i class="bi bi-arrow-clockwise"></i> New Recommendation
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div id="recommendationContent">
+                                @if(isset($noMoreBooks) && $noMoreBooks)
+                                    <div class="text-center py-4">
+                                        <i class="bi bi-emoji-frown display-4 text-muted"></i>
+                                        <h5 class="mt-3 text-muted">No more books to recommend</h5>
+                                        <p class="text-muted">You've seen all the books in our library! Check back later for new additions.</p>
+                                    </div>
+                                @elseif(isset($recommendedBook))
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <h5 class="card-title text-primary">{{ $recommendedBook->title }}</h5>
+                                            <p class="card-text"><strong>Author:</strong> {{ $recommendedBook->author }}</p>
+                                            <p class="card-text"><strong>Category:</strong> 
+                                                <span class="badge bg-info">{{ $recommendedBook->category ? $recommendedBook->category->name : 'Uncategorized' }}</span>
+                                            </p>
+                                            <p class="card-text">{{ Str::limit($recommendedBook->description, 200) }}</p>
+                                            <p class="card-text"><small class="text-muted">ISBN: {{ $recommendedBook->isbn }}</small></p>
+                                            <p class="card-text">
+                                                <span class="badge {{ $recommendedBook->available_copies > 0 ? 'bg-success' : 'bg-danger' }}">
+                                                    {{ $recommendedBook->available_copies > 0 ? 'Available' : 'Not Available' }}
+                                                </span>
+                                                <small class="text-muted ms-2">{{ $recommendedBook->available_copies }} copies available</small>
+                                            </p>
+                                        </div>
+                                        <div class="col-md-4 text-center">
+                                            <div class="book-cover-placeholder bg-light rounded p-4">
+                                                <i class="bi bi-book display-1 text-muted"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                        
+                                    @if(isset($recommendationStats))
+                                        <hr>
+                                        <div class="row text-center">
+                                            <div class="col-md-3">
+                                                <small class="text-muted">Books Seen</small>
+                                                <div class="h6">{{ $recommendationStats['seen_books'] }}</div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <small class="text-muted">Remaining</small>
+                                                <div class="h6">{{ $recommendationStats['remaining_books'] }}</div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <small class="text-muted">Categories</small>
+                                                <div class="h6">{{ $recommendationStats['categories_seen'] }}</div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <small class="text-muted">Progress</small>
+                                                <div class="h6">{{ round(($recommendationStats['seen_books'] / $recommendationStats['total_books']) * 100) }}%</div>
+                                            </div>
+                                        </div>
+                                    @endif
+                                @else
+                                    <div class="text-center py-4">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        <p class="mt-2 text-muted">Loading recommendation...</p>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                    
                 @include('layouts.footer')
             </div>
         </div>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+function refreshRecommendation() {
+    const button = document.getElementById('refreshRecommendation');
+    const content = document.getElementById('recommendationContent');
+    
+    // Disable button and show loading
+    button.disabled = true;
+    button.innerHTML = '<i class="bi bi-arrow-clockwise spin"></i> Loading...';
+    
+    // Show loading in content area
+    content.innerHTML = `
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 text-muted">Getting new recommendation...</p>
+        </div>
+    `;
+    
+    // Make AJAX request
+    fetch('{{ route("student.book-recommendation.refresh") }}', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update content with new recommendation
+            content.innerHTML = `
+                <div class="row">
+                    <div class="col-md-8">
+                        <h5 class="card-title text-primary">${data.book.title}</h5>
+                        <p class="card-text"><strong>Author:</strong> ${data.book.author}</p>
+                        <p class="card-text"><strong>Category:</strong> 
+                            <span class="badge bg-info">${data.book.category}</span>
+                        </p>
+                        <p class="card-text">${data.book.description}</p>
+                        <p class="card-text"><small class="text-muted">ISBN: ${data.book.isbn}</small></p>
+                        <p class="card-text">
+                            <span class="badge ${data.book.available_copies > 0 ? 'bg-success' : 'bg-danger'}">
+                                ${data.book.available_copies > 0 ? 'Available' : 'Not Available'}
+                            </span>
+                            <small class="text-muted ms-2">${data.book.available_copies} copies available</small>
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div class="book-cover-placeholder bg-light rounded p-4">
+                            <i class="bi bi-book display-1 text-muted"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr>
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <small class="text-muted">Books Seen</small>
+                        <div class="h6">${data.stats.seen_books}</div>
+                    </div>
+                    <div class="col-md-3">
+                        <small class="text-muted">Remaining</small>
+                        <div class="h6">${data.stats.remaining_books}</div>
+                    </div>
+                    <div class="col-md-3">
+                        <small class="text-muted">Categories</small>
+                        <div class="h6">${data.stats.categories_seen}</div>
+                    </div>
+                    <div class="col-md-3">
+                        <small class="text-muted">Progress</small>
+                        <div class="h6">${Math.round((data.stats.seen_books / data.stats.total_books) * 100)}%</div>
+                    </div>
+                </div>
+            `;
+        } else {
+            // Show exhausted message
+            content.innerHTML = `
+                <div class="text-center py-4">
+                    <i class="bi bi-emoji-frown display-4 text-muted"></i>
+                    <h5 class="mt-3 text-muted">No more books to recommend</h5>
+                    <p class="text-muted">${data.message}</p>
+                </div>
+            `;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        content.innerHTML = `
+            <div class="text-center py-4">
+                <i class="bi bi-exclamation-triangle display-4 text-warning"></i>
+                <h5 class="mt-3 text-warning">Error</h5>
+                <p class="text-muted">Failed to get new recommendation. Please try again.</p>
+            </div>
+        `;
+    })
+    .finally(() => {
+        // Re-enable button
+        button.disabled = false;
+        button.innerHTML = '<i class="bi bi-arrow-clockwise"></i> New Recommendation';
+    });
+}
+
+// Add CSS for spinning animation
+document.head.insertAdjacentHTML('beforeend', `
+<style>
+.spin {
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+</style>
+`);
+</script>
+@endpush

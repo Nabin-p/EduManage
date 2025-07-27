@@ -5,9 +5,14 @@
     <div class="row">
         <div class="col-md-12">
             
-            {{-- Page Title and Add Button --}}
+            {{-- Page Title, Back Button, and Add Button --}}
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="h2">Book Management</h1>
+                <div class="d-flex align-items-center">
+                    <a href="{{ route('librarian.dashboard') }}" class="btn btn-secondary me-3">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                    <h1 class="h2 mb-0">Book Management</h1>
+                </div>
                 <a href="{{ route('librarian.books.create') }}" class="btn btn-primary">
                     <i class="fas fa-plus"></i> Add New Book
                 </a>
@@ -34,6 +39,7 @@
                                 <th>Title</th>
                                 <th>Author</th>
                                 <th>ISBN</th>
+                                <th>Category</th>
                                 <th>Copies (Available/Total)</th>
                                 <th>Actions</th>
                             </tr>
@@ -46,6 +52,13 @@
                                     <td>{{ $book->title }}</td>
                                     <td>{{ $book->author }}</td>
                                     <td>{{ $book->isbn }}</td>
+                                    <td>
+                                        @if($book->category)
+                                            <span class="badge bg-info">{{ $book->category->name }}</span>
+                                        @else
+                                            <span class="text-muted">No category</span>
+                                        @endif
+                                    </td>
                                     <td>{{ $book->available_copies }} / {{ $book->total_copies }}</td>
                                     <td>
                                         {{-- Edit Button --}}
@@ -66,7 +79,7 @@
                             @empty
                                 {{-- Message shown when there are no books --}}
                                 <tr>
-                                    <td colspan="6" class="text-center">No books found.</td>
+                                    <td colspan="7" class="text-center">No books found.</td>
                                 </tr>
                             @endforelse
                         </tbody>
